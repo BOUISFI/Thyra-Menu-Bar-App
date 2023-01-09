@@ -9,10 +9,19 @@ on:
       - main
   pull_request:
   workflow_call:
+    inputs:
+      tag_name:
+        type: string
+      draft:
+        type: string
+      prerelease:
+        type: string
+      generate_release_notes:
+        type: string
 
-# The contents of the repository should be readable by the workflow.
+# write permission is needed for github release job.
 permissions:
-  contents: read
+  contents: write
 
 # The workflow consists of three jobs: lint, tests, and build.
 
@@ -46,7 +55,22 @@ jobs:
       - name: Build ThyraApp application
         run: pyinstaller src/ThyraApp.spec
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
-          name: ThyraApp_${{ matrix.target }}_${{ matrix.arch }}
+          name: ThyraApp_${{ matrix.target }}-${{ matrix.arch }}
           path: dist
+      - name: rename binary
+        if: ${{ matrix.target != 'windows'}}
+        run: mv dist/ThyraApp ThyraApp_${{ matrix.target }}-${{ matrix.arch }}
+      - name: rename binary windows
+        if: ${{ matrix.target == 'windows'}}
+        run: mv dist/ThyraApp.exe ThyraApp_${{ matrix.target }}-${{ matrix.arch }}.exe
+      - name: Create release and upload binaries
+        if: ${{ inputs.tag_name != ''}}
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ inputs.tag_name }}
+          draft: ${{ inputs.draft }}
+          prerelease: ${{ inputs.prerelease }}
+          generate_release_notes: ${{ inputs.generate_release_notes }}
+          files: ThyraApp_*
