@@ -108,7 +108,7 @@ class ThyraApp:
         file_path = os.path.join(self.config_dir, 'path.txt')
         # Wait for the file to be created, with a timeout of 5 seconds
         start_time = time.time()
-        while not file_path:
+        while not os.path.exists(file_path):
             elapsed_time = time.time() - start_time
             if elapsed_time > timeout:
                 # Timeout reached, giving up
@@ -116,7 +116,7 @@ class ThyraApp:
             time.sleep(1)
 
         # If File Created set the Env Path
-        if file_path:
+        if os.path.exists(file_path):
             with open(file_path, 'r') as f:
                 path = f.read()
                 os.environ['PATH'] = path
