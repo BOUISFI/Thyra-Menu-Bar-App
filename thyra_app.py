@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import sys
 import time
+import platform
 
 from PySide6.QtGui import QIcon, QAction
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
@@ -24,10 +25,17 @@ class ThyraApp:
             self.cwd = os.getcwd()
 
         # Expand the '~' character to the user's home directory
-        home_dir = os.path.expanduser('~')
+        self.home_dir = os.path.expanduser('~')
+
+        # Get thyra-server filename
+        self.THYRA_SERVER_FILENAME = ""        
+        if platform.system() == "Windows":
+            self.THYRA_SERVER_FILENAME = "thyra-server.exe"
+        elif platform.system() == "Darwin":
+            self.THYRA_SERVER_FILENAME = "thyra-server"
 
         # Get the .config folder
-        self.config_dir = os.path.join(home_dir, '.config')
+        self.config_dir = os.path.join(self.home_dir, '.config')
 
         # Set up logging
         self.setup_logging()
@@ -126,7 +134,7 @@ class ThyraApp:
         self.menu = QMenu()
 
         # Check if there-server is installed
-        result = shutil.which("thyra-server")
+        result = os.path.join(self.home_dir, self.THYRA_SERVER_FILENAME) or shutil.which("thyra-server")
         if result is None or result == '':
             logging.error("cannot find thyra-server path. please run as sudo, and check if path.txt is well created "
                           "in your .conf.")

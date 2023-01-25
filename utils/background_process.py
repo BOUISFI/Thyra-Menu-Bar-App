@@ -4,6 +4,7 @@ import logging
 import time
 import os
 import re
+import psutil
 logging.getLogger().setLevel(logging.INFO)
 
 
@@ -58,6 +59,7 @@ class Process:
         try:
             logging.info("killing process {} with pid {}...".format(self.cmd, self.pid))
             # Send the signal to all the process groups (plugins)
+            kill_child_processes(self.pid)
             self.process.kill()
         except Exception as e:
             logging.error("Error while stopping process {}: {}".format(self.cmd, e))
@@ -67,8 +69,16 @@ class Process:
         Stops the process.
         """
         try:
-            logging.info("killing process {} with pid {} as well as its sub-processes, plugins ...".format(self.cmd, self.pid))
+            logging.info(
+                "killing process {} with pid {} as well as its sub-processes, plugins ...".format(self.cmd, self.pid))
             # Send the signal to all the process groups (plugins)
             os.killpg(os.getpgid(self.pid), signal.SIGTERM)
         except Exception as e:
             logging.error("Error while stopping process {}: {}".format(self.cmd, e))
+
+
+def kill_child_processes(pid):
+    parent = psutil.Process(pid)
+    for proc in psutil.process_iter():
+        if proc.ppid() == parent.pid:
+            proc.kill()
