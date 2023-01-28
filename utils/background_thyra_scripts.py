@@ -73,12 +73,13 @@ class Thyra:
         """
         # Expected output when start thyra
         expected_output = ["", "",
-                           "Connected to node server https://test.massa.net/api/v2 (version TEST.18.0)",
-                           "Plugin Manager initialization",
-                           "Starting plugin 'Playground plugin' on port 4200",
-                           "Starting plugin 'Node Manager plugin' on port 4201",
-                           "Starting plugin 'Wallet plugin' on port 4202",
-                           "Serving thyra server at http://[::]:80"
+        "Connected to node server https://test.massa.net/api/v2 (version TEST.18.0)",
+        "Plugin Manager initialization",
+        "Starting plugin 'Playground plugin' on port 4200",
+        "Starting plugin 'Node Manager plugin' on port 4201",
+        "Starting plugin 'Wallet plugin' on port 4202",
+        "Serving thyra server at http://[::]:80",
+        "Serving thyra server at https://[::]:443"
                            ]
         return self.thyra.start(1, expected_output)
 
