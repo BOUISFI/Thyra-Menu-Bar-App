@@ -46,13 +46,23 @@ class ThyraApp:
         # Construct the absolute path to the resources
         self.resource_path = os.path.join(self.cwd, 'images')
 
+        # TODO: Replace with a proper plugin listing
+        self.plugins = [
+            # {
+            #     'name': 'Node Manager',
+            #     'button': None,
+            # }
+        ]
+
         # Create the application and tray icon
         self.app = QApplication([])
         self.app.setQuitOnLastWindowClosed(False)
+
         self.tray = QSystemTrayIcon()
         # Set the tray icon
         self.tray.setIcon(QIcon(os.path.join(self.resource_path, 'logo.png')))
         self.tray.setVisible(True)
+
         # Track if Thyra is running
         self.thyra_running = False
 
@@ -146,6 +156,9 @@ class ThyraApp:
             self.thyra_action.triggered.connect(self.toggle_thyra)
             self.menu.addAction(self.thyra_action)
 
+        self.menu.addSeparator()
+        self.menu.addAction("Direct Access").setDisabled(True)
+
         # Add the menu to the tray
         self.tray.setContextMenu(self.menu)
 
@@ -158,6 +171,17 @@ class ThyraApp:
         self.web_onchain_action = QAction("Web Onchain")
         self.web_onchain_action.triggered.connect(self.thyra.launch_website_creator)
         self.menu.addAction(self.web_onchain_action)
+
+        self.menu.addSeparator()
+
+        if len(self.plugins) != 0:
+            self.menu.addAction("Plugins").setDisabled(True)
+ 
+            for plugin in self.plugins:
+                plugin['button'] = QAction(plugin['name'])
+                self.menu.addAction(plugin['button'])
+
+            self.menu.addSeparator()
 
     def toggle_thyra(self):
         if self.thyra_action.isChecked():
