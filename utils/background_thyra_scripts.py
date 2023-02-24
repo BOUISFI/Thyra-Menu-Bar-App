@@ -27,8 +27,10 @@ class Thyra:
     THYRA_SERVER_FILENAME = ""        
     if platform.system() == "Windows":
         THYRA_SERVER_FILENAME = "thyra-server.exe"
-    elif platform.system() == "Darwin":
+    elif platform.system() == "Darwin" or platform.system() == "Linux":
         THYRA_SERVER_FILENAME = "thyra-server"
+    else:
+        raise Exception('Unsupported OS: {}'.format(currentOS))
 
     CONST_WALLET_LINK = "http://my.massa/thyra/wallet/index.html"
     CONST_WEBSITE_CREATOR_LINK = "http://my.massa/thyra/websiteCreator/index.html"

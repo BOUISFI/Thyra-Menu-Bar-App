@@ -28,11 +28,14 @@ class ThyraApp:
         self.home_dir = os.path.expanduser('~')
 
         # Get thyra-server filename
-        self.THYRA_SERVER_FILENAME = ""        
-        if platform.system() == "Windows":
+        self.THYRA_SERVER_FILENAME = ""  
+        currentOS =  platform.system()    
+        if currentOS == "Windows":
             self.THYRA_SERVER_FILENAME = "thyra-server.exe"
-        elif platform.system() == "Darwin":
+        elif currentOS == "Darwin" or currentOS == "Linux":
             self.THYRA_SERVER_FILENAME = "thyra-server"
+        else:
+            raise Exception('Unsupported OS: {}'.format(currentOS))
 
         # Get the .config folder
         self.config_dir = os.path.join(self.home_dir, '.config')
@@ -234,5 +237,10 @@ class ThyraApp:
 
 
 if __name__ == "__main__":
-    app = ThyraApp()
-    app.run()
+    try:
+        app = ThyraApp()
+        app.run()
+    except Exception as e:
+        logging.error("Execution failed: %s", e)
+        print("Error:", str(e), file=sys.stderr)
+        sys.exit(1)

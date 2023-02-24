@@ -1,0 +1,31 @@
+# Testing application execution
+#
+# The current operation of the ThyraApp application is to keep it running throughout its lifetime.
+# In order to test it, it is necessary to make sure that it starts and does not crash after a certain time.
+
+# FIXME: There is no linux-like-timeout command on windows. Right now thisstest use a binary added to the repo to do so.
+# Using such binary is not a bad thing, but the way it's done is dirty.
+
+name: Test latest version on Windows
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 7 * * *'
+
+jobs:
+  test-latest-windows:
+    name: Test latest version on Windows.
+    runs-on: windows-latest
+    steps:
+      - name: Getting expected_timeout on windows
+        uses: actions/checkout@v3
+      - name: Download binary file
+        uses: suisei-cn/actions-download-file@v1.3.0
+        id: downloadfile
+        with:
+          url: "https://github.com/massalabs/Thyra-Menu-Bar-App/releases/latest/download/ThyraApp_windows-amd64.exe"
+      - name: Execute application
+        run: .\expected_timeout.exe 30 D:\a\Thyra-Menu-Bar-App\Thyra-Menu-Bar-App\ThyraApp_windows-amd64.exe
+        shell: cmd
+        timeout-minutes: 1

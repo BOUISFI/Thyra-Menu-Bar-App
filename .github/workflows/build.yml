@@ -1,13 +1,11 @@
-# This is a configuration file for a GitHub Actions workflow.
-# The workflow is triggered when a versioned tag is pushed to the main branch,
-# or when a pull request is opened or when the workflow is manually called.
+name: Build workflow
+
 on:
   push:
     tags:
       - v[0-9]+.* # this regular expression matches tags like v1.0.0, v2.3.4, etc.
     branches:
       - main
-  pull_request:
   workflow_call:
     inputs:
       tag_name:
@@ -28,7 +26,7 @@ permissions:
 jobs:
 
   tests:
-    uses: ./.github/workflows/tests.yml
+    uses: ./.github/workflows/unit-tests.yml
 
   build:
     name: build and upload artifacts
@@ -49,9 +47,12 @@ jobs:
             target: darwin
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - name: Install Dependencies
+      - uses: actions/checkout@v3
+      - name: Install python dependencies
         uses: ./.github/actions/install
+      - name: Install linux dependencies
+        if: ${{ matrix.target == 'linux'}}
+        run: sudo apt install qt6-base-dev
       - name: Build ThyraApp application
         run: pyinstaller src/ThyraApp.spec
       - name: Upload artifacts
@@ -59,10 +60,10 @@ jobs:
         with:
           name: ThyraApp_${{ matrix.target }}-${{ matrix.arch }}
           path: dist
-      - name: rename binary
+      - name: Rename binary
         if: ${{ matrix.target != 'windows'}}
         run: mv dist/ThyraApp ThyraApp_${{ matrix.target }}-${{ matrix.arch }}
-      - name: rename binary windows
+      - name: Rename binary windows
         if: ${{ matrix.target == 'windows'}}
         run: mv dist/ThyraApp.exe ThyraApp_${{ matrix.target }}-${{ matrix.arch }}.exe
       - name: Create release and upload binaries

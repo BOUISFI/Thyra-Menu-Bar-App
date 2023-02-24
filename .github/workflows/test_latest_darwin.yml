@@ -1,0 +1,28 @@
+# Testing application execution
+#
+# The current operation of the ThyraApp application is to keep it running throughout its lifetime.
+# In order to test it, it is necessary to make sure that it starts and does not crash after a certain time.
+
+name: Test latest version on Darwin
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 7 * * *'
+
+jobs:
+  test-latest-darwin:
+    name: Test latest version on Darwin.
+    runs-on: macos-latest
+    steps:
+      - name: Install timeout
+        run: brew install coreutils
+      - name: Download binary file
+        uses: suisei-cn/actions-download-file@v1.3.0
+        id: downloadfile
+        with:
+          url: "https://github.com/massalabs/Thyra-Menu-Bar-App/releases/latest/download/ThyraApp_darwin-amd64"
+      - name: Set execution right
+        run: chmod +x ThyraApp_darwin-amd64
+      - name: Execute application
+        run: timeout 30 ./ThyraApp_darwin-amd64 || code=$?; if [[ $code -ne 124 && $code -ne 0 ]]; then exit $code; fi
